@@ -1,6 +1,5 @@
 {% extends 'main.html' %}
 {% block content %}
-{% for post in posts %}
 <div class="card" style="width: 18rem; margin: 1.5%">
   {% if post.image %}
   <img src="{{post.image.url}}" class="card-img-top" alt="...">
@@ -19,5 +18,4 @@
     <a href="/posts/{{ post.id }}/" class="btn btn-primary">Go somewhere</a>
   </div>
 </div>
-{% endfor %}
 {% endblock %}
