@@ -5,7 +5,7 @@
   {% if post.image %}
   <img src="{{post.image.url}}" class="card-img-top" alt="...">
   {% else %}
-  <img src="/static/placeholder.png">
+  <img src="/placeholder.png">
   {% endif %}
   <div class="card-body">
     <p class="card-title">{{post.title}}</p>
@@ -16,7 +16,7 @@
     {%for tag in post.tag.all%}
     <a href="#" class="btn btn-primary">{{tag.title}}</a>
     {%endfor%}
-    <a href="/posts/{{ post.id }}/" class="btn btn-primary">Go somewhere</a>
+    <a href="/posts/{{ post.id }}/" class="btn btn-primary">Go to post</a>
   </div>
 </div>
 {% endfor %}
