@@ -1,8 +1,9 @@
 from django.shortcuts import render, HttpResponse, redirect
-from posts.forms import PostCreateForm, SearchForm
+from posts.forms import PostCreateForm, SearchForm, PostUpdateForm
 from django.db.models import Q
 from posts.models import Post
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 
 
 def main_view(request):
@@ -10,6 +11,7 @@ def main_view(request):
         return render(request, "main.html")
     else:
         pass
+
 
 @login_required(login_url="/login/")
 def posts_list_view(request):
@@ -46,6 +48,12 @@ def posts_list_view(request):
             context={"posts": posts, "search_form": search_form, "max_pages": range(1, max_pages+1)},
         )
 
+
+class PostListView(ListView):
+    model = Post
+    template_name = "posts/posts_list.html"
+    context_object_name = "posts"
+
 @login_required(login_url="/login/")
 def post_detail_view(request, post_id):
     if request.method == "GET":
@@ -62,5 +70,21 @@ def post_create_view(request):
         if not form.is_valid():
             return render(request, "posts/post_create.html", context={"form": form})
         elif form.is_valid():
-            form.save()
+            user = request.user
+            Post.objects.create(**form.cleaned_data, author=user)
             return redirect("/posts/")
+
+
+@login_required(login_url="/login/")
+def post_update_view(request, post_id):
+    post = Post.objects.get(id=post_id)
+    if request.method == "GET":
+        form = PostUpdateForm(instance=post)
+        return render(request, "posts/post_update.html", context={"form": form})
+    if request.method == "POST":
+        form = PostUpdateForm(request.POST, request.FILES, instance=post)
+        if not form.is_valid():
+            return render(request, "posts/post_update.html", context={"form": form})
+        elif form.is_valid():
+            form.save()
+            return redirect(f"/posts/{post_id}/")

@@ -2,10 +2,18 @@ from django import forms
 from posts.models import Post, Category
 
 
-class PostCreateForm(forms.ModelForm):
-    class Meta:
-        model = Post
-        fields = ['image', 'title', 'description']
+class PostCreateForm(forms.Form):
+    title = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Title", "class": "form-control"}),
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Description"}),
+    )
+    image = forms.ImageField(required=True)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -27,3 +35,9 @@ class SearchForm(forms.Form):
         ("-updated_at", "updated at(descending)"),
     )
     ordering = forms.ChoiceField(choices=orderings, widget=forms.Select())
+
+
+class PostUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['image', 'title', 'description']

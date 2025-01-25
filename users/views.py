@@ -1,22 +1,29 @@
+from itertools import product
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from posts.models import Post
 from users.forms import RegisterForm,LoginForm
+from users.models import Profile
+from django.contrib.auth.decorators import login_required
 
 def register_view(request):
     if request.method == "GET":
         form = RegisterForm()
         return render(request, "users/register.html", context={"form": form})
     if request.method == "POST":
-        form = RegisterForm(request.POST)
+        form = RegisterForm(request.POST, request.FILES)
         if not form.is_valid():
             return render(request, "users/register.html", context={"form": form})
         elif form.is_valid():
-            User.objects.create_user(
-                username=form.cleaned_data["username"],
-                email=form.cleaned_data["email"],
-                password=form.cleaned_data["password"],
+            form.cleaned_data.__delitem__("password_confirm")
+            image = form.cleaned_data.pop("image")
+            age = form.cleaned_data.pop("age")
+            user = User.objects.create_user(
+                **form.cleaned_data,
             )
+            Profile.objects.create(user=user, image=image, age=age)
             return redirect("main_view")
 
 
@@ -38,6 +45,16 @@ def login_view(request):
                 return redirect("main_view")
 
 
+@login_required(login_url="/login/")
 def logout_view(request):
     logout(request)
     return redirect("main_view")
+
+
+@login_required(login_url="/login/")
+def profile_view(request):
+    if request.method == "GET":
+        user = request.user
+        posts = Post.objects.filter(author=user).order_by("-created_at")
+        profile = Profile.objects.get(user=user)
+        return render(request, "users/profile.html", context={"profile": profile, "posts": posts})

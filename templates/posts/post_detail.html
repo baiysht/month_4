@@ -15,7 +15,9 @@
     {%for tag in post.tag.all%}
     <a href="#" class="btn btn-primary">{{tag.title}}</a>
     {%endfor%}
-    <a href="/posts/" class="btn btn-primary">Go back</a>
+    {%if post.author == request.user%}
+    <a href="/posts/update/{{post.id}}" class="btn btn-primary">Update Post</a>
+    {%endif%}
   </div>
 </div>
 {% endblock %}
